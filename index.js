@@ -61,7 +61,7 @@ function sheetRouter (opts, tree) {
       const handler = (opts.thunk === false || opts.thunk === 'match')
         ? cb
         : thunkify(cb)
-      router.on(innerRoute, handler)
+      router.on(innerRoute, decodify(handler))
     }
 
     if (Array.isArray(children)) {
@@ -91,6 +91,16 @@ function sheetRouter (opts, tree) {
       prevCallback = router(prevRoute)
       return prevCallback(arg1, arg2, arg3, arg4, arg5)
     }
+  }
+}
+
+function decodify (cb) {
+  return function (params) {
+    const decodedParams = Object.keys(params).reduce(function (decodedParams, prop) {
+      decodedParams[prop] = decodeURIComponent(params[prop])
+      return decodedParams
+    }, {})
+    return cb(decodedParams)
   }
 }
 
